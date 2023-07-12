@@ -1,5 +1,6 @@
 library vcard;
 
+import 'dart:html' as html;
 import 'dart:io';
 import 'dart:convert';
 
@@ -121,8 +122,7 @@ class VCard {
   /// Get major version of the vCard format
   /// @return {integer}
   int getMajorVersion() {
-    String majorVersionString =
-         this.version.split('.')[0] ;
+    String majorVersionString = this.version.split('.')[0];
     if (isNumeric(majorVersionString)) {
       return int.parse(majorVersionString);
     }
@@ -138,9 +138,15 @@ class VCard {
   saveToFile(filename) async {
     String contents = getFormattedString();
 
-    final directory = await getApplicationDocumentsDirectory();
-    final fs = File('${directory.path}/vCard/exports/$filename');
-    fs.writeAsStringSync(contents);
+    Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
+      html.AnchorElement(
+          href:
+              'data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}')
+        ..setAttribute('download', fileName)
+        ..click();
+    }
+
+    await saveAndLaunchFile(utf8.encode(contents), "fileName.vcf");
   }
 
   /// Get social media URLs
